@@ -1,13 +1,21 @@
 'use client';
 import { useState } from 'react';
+import TriageTepModal from '../../components/TriageTepModal';
 
 function simulatePrediction(data) {
   let score = 0;
   // Triage level is the strongest predictor
-  const triage = parseInt(data.triage) || 3;
-  if (triage <= 2) score += 40;
-  else if (triage === 3) score += 15;
-  else score += 5;
+  let triage = 3;
+  if (data.triage === 'Nivel I' || String(data.triage) === '1') triage = 1;
+  else if (data.triage === 'Nivel II' || String(data.triage) === '2') triage = 2;
+  else if (data.triage === 'Nivel III' || String(data.triage) === '3') triage = 3;
+  else if (data.triage === 'Nivel IV' || String(data.triage) === '4') triage = 4;
+  else if (data.triage === 'Nivel V' || String(data.triage) === '5') triage = 5;
+  else triage = parseInt(data.triage) || 3;
+
+  if (triage <= 2) score += 50;  // Garantiza Severidad inmediata (>= 50)
+  else if (triage === 3) score += 25; // Garantiza Moderada (>= 25)
+  else score += 0;
 
   // Glasgow
   const glasgow = parseInt(data.glasgow) || 15;
@@ -216,14 +224,11 @@ export default function EvaluacionPage() {
         <div className="form-section">
           <div className="form-section-title">🏷️ Clasificación de Triage (TEP)</div>
           <div className="form-grid">
-            <div className="input-group">
-              <label>Nivel de Triage</label>
-              <select className="select" name="triage" value={formData.triage} onChange={handleChange}>
-                <option value="1">Nivel I — Resucitación</option>
-                <option value="2">Nivel II — Emergencia</option>
-                <option value="3">Nivel III — Urgencia</option>
-                <option value="4">Nivel IV — Menos Urgente</option>
-              </select>
+            <div className="input-group" style={{ gridColumn: '1 / -1' }}>
+              <TriageTepModal
+                value={formData.triage}
+                onChange={(val) => setFormData({ ...formData, triage: val })}
+              />
             </div>
           </div>
         </div>

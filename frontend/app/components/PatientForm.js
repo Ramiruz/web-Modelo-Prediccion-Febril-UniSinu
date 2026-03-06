@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { IconUsers, IconClipboard, IconHeart, IconFlask, IconLoader, IconActivity } from './Icons';
+import TriageTepModal from './TriageTepModal';
 
 /**
  * Opciones de dropdowns — mapeo exacto a las categorías del modelo V3.
@@ -82,6 +83,7 @@ const INITIAL_DATA = {
     procalcitonina: '',
     leucocitos: '',
     pcr: '',
+    triage: '3',
 };
 
 export default function PatientForm({ onSubmit, isLoading }) {
@@ -113,6 +115,7 @@ export default function PatientForm({ onSubmit, isLoading }) {
             procalcitonina: formData.procalcitonina ? parseFloat(formData.procalcitonina) : null,
             leucocitos: formData.leucocitos ? parseFloat(formData.leucocitos) : null,
             pcr: formData.pcr ? parseFloat(formData.pcr) : null,
+            triage: formData.triage,
         };
 
         onSubmit(payload);
@@ -338,6 +341,21 @@ export default function PatientForm({ onSubmit, isLoading }) {
                             placeholder="Ej: 5.0"
                             step="0.1"
                             min="0"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {/* Triage */}
+            <div className="form-section">
+                <div className="form-section-title">
+                    🏷️ Clasificación de Triage (TEP)
+                </div>
+                <div className="form-grid">
+                    <div className="input-group" style={{ gridColumn: '1 / -1' }}>
+                        <TriageTepModal
+                            value={formData.triage}
+                            onChange={(val) => setFormData({ ...formData, triage: val })}
                         />
                     </div>
                 </div>
