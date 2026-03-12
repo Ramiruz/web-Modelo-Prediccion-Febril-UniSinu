@@ -4,8 +4,10 @@ import { useRouter } from 'next/navigation';
 import { AuthProvider, useAuth } from '../../context/AuthContext';
 import Link from 'next/link';
 import { IconMail, IconLock, IconShield } from '../../components/Icons';
+import { useLanguage } from '../../context/LanguageContext';
 
 function LoginForm() {
+    const { t } = useLanguage();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -47,26 +49,24 @@ function LoginForm() {
                         <IconShield style={{ width: 48, height: 48 }} />
                     </div>
                     <h1>
-                        Modelo de Predicción de{' '}
-                        <span className="text-gradient">Severidad Febril</span> Pediátrica
+                        {t('modelTitleP1')}{' '}
+                        <span className="text-gradient">{t('modelTitleP2')}</span> {t('modelTitleP3')}
                     </h1>
                     <p>
-                        Sistema inteligente basado en Machine Learning para clasificar la
-                        severidad de cuadros febriles en pacientes pediátricos, apoyando la
-                        toma de decisiones médicas en urgencias.
+                        {t('modelDescription')}
                     </p>
                     <div className="login-hero-stats">
                         <div className="login-stat">
                             <div className="value">74.6%</div>
-                            <div className="label">Accuracy CV</div>
+                            <div className="label">{t('accuracyCV')}</div>
                         </div>
                         <div className="login-stat">
                             <div className="value">70%</div>
-                            <div className="label">Recall Severa</div>
+                            <div className="label">{t('recallSevere')}</div>
                         </div>
                         <div className="login-stat">
                             <div className="value">0</div>
-                            <div className="label">Errores Críticos</div>
+                            <div className="label">{t('criticalErrors')}</div>
                         </div>
                     </div>
                 </div>
@@ -75,21 +75,21 @@ function LoginForm() {
             {/* Right — Login Form */}
             <div className="login-right">
                 <div className="login-card animate-slide">
-                    <h2>Iniciar Sesión</h2>
-                    <p className="subtitle">Accede al panel de análisis clínico</p>
+                    <h2>{t('signIn')}</h2>
+                    <p className="subtitle">{t('loginSubtitle')}</p>
 
                     <form className="login-form" onSubmit={handleSubmit}>
                         {error && <div className="login-error">{error}</div>}
 
                         <div className="input-group">
-                            <label htmlFor="email">Correo Electrónico</label>
+                            <label htmlFor="email">{t('emailLabel')}</label>
                             <div className="input-icon-wrapper">
                                 <span className="input-icon"><IconMail /></span>
                                 <input
                                     id="email"
                                     className="input"
                                     type="email"
-                                    placeholder="doctor@ejemplo.com"
+                                    placeholder={t('emailPlaceholder')}
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     autoComplete="email"
@@ -99,14 +99,14 @@ function LoginForm() {
                         </div>
 
                         <div className="input-group">
-                            <label htmlFor="password">Contraseña</label>
+                            <label htmlFor="password">{t('passwordLabel')}</label>
                             <div className="input-icon-wrapper">
                                 <span className="input-icon"><IconLock /></span>
                                 <input
                                     id="password"
                                     className="input"
                                     type="password"
-                                    placeholder="Ingrese su contraseña"
+                                    placeholder={t('passwordPlaceholder')}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     autoComplete="current-password"
@@ -121,21 +121,21 @@ function LoginForm() {
                             disabled={isSubmitting}
                             style={{ width: '100%', marginTop: '0.5rem' }}
                         >
-                            {isSubmitting ? 'Verificando...' : 'Ingresar'}
+                            {isSubmitting ? t('verifying') : t('enter')}
                         </button>
                     </form>
 
                     <div style={{ textAlign: 'center', marginTop: '1.25rem', fontSize: '0.85rem' }}>
-                        <span style={{ color: 'var(--text-muted)' }}>¿No tienes cuenta? </span>
+                        <span style={{ color: 'var(--text-muted)' }}>{t('noAccount')}</span>
                         <Link href="/register" style={{ fontWeight: 600 }}>
-                            Registrarse
+                            {t('register')}
                         </Link>
                     </div>
 
                     <div className="login-footer">
-                        Universidad del Sinú — Cartagena, Colombia
+                        {t('university')}
                         <br />
-                        Investigación Clínica · Dra. Fontalvo · 2026
+                        {t('researchLabel')}
                     </div>
                 </div>
             </div>

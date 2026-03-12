@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo, Fragment } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { getEvaluaciones } from '../../lib/api';
 import { IconSearch, IconHistory, IconChevronLeft, IconChevronRight, IconEdit, IconChevronDown } from '../../components/Icons';
+import { useLanguage } from '../../context/LanguageContext';
 
 function getBadgeClass(severity) {
   if (severity === 'Leve') return 'badge badge-low';
@@ -50,6 +51,7 @@ function Section({ title, children, color }) {
 }
 
 export default function HistorialPage() {
+  const { t, language } = useLanguage();
   const { supabase } = useAuth();
   const [evaluaciones, setEvaluaciones] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -135,20 +137,20 @@ export default function HistorialPage() {
         </Section>
 
         {/* Datos generales */}
-        <Section title="Datos Generales" color="var(--text-muted)">
-          <Field label="Sexo" value={d.sexo} />
-          <Field label="Área" value={d.area} />
-          <Field label="Días de Fiebre" value={d.tiempo_fiebre != null ? `${d.tiempo_fiebre} días` : null} />
+        <Section title={t('generalData')} color="var(--text-muted)">
+          <Field label={t('sex')} value={d.sexo ? t(d.sexo.toLowerCase() === 'femenino' ? 'female' : 'male') : d.sexo} />
+          <Field label={t('area')} value={d.area === 'Urban' ? t('urban') : d.area === 'Rural' ? t('rural') : d.area} />
+          <Field label={t('feverDays')} value={d.tiempo_fiebre != null ? `${d.tiempo_fiebre} ${t('days')}` : null} />
           <Field label="Vacunación" value={d.vacunacion} />
         </Section>
 
         {/* Evaluación clínica */}
-        <Section title="Evaluación Clínica" color="#60a5fa">
-          <Field label="Estado Nutricional" value={d.estado_nutricional === 'Riesgo de desnutrición' ? 'Desnutrición' : d.estado_nutricional} />
+        <Section title={t('clinicalEvaluation')} color="#60a5fa">
+          <Field label={t('nutritionalStatus')} value={d.estado_nutricional === 'Riesgo de desnutrición' ? t('malnutritionRisk') : d.estado_nutricional} />
           <Field label="Glasgow" value={d.glasgow != null ? d.glasgow : null} />
-          <Field label="Hallazgo Examen Físico" value={d.hallazgo_examen_fisico} fullWidth={true} />
-          <Field label="Antecedentes" value={d.antecedentes_personales} fullWidth={true} />
-          <Field label="Contacto Epidemiológico" value={d.contacto_epidemiologico} fullWidth={true} />
+          <Field label={t('th_findings')} value={d.hallazgo_examen_fisico !== 'Ninguno' ? t(d.hallazgo_examen_fisico) || d.hallazgo_examen_fisico : t('none')} fullWidth={true} />
+          <Field label={t('history')} value={d.antecedentes_personales !== 'Ninguno' ? t(d.antecedentes_personales) || d.antecedentes_personales : t('none')} fullWidth={true} />
+          <Field label={t('epidemiologicalContact')} value={d.contacto_epidemiologico !== 'Ninguno' ? t(d.contacto_epidemiologico) || d.contacto_epidemiologico : t('none')} fullWidth={true} />
           <Field label="Exposición Ambiental" value={d.exposicion_ambiental} />
         </Section>
 
@@ -171,15 +173,20 @@ export default function HistorialPage() {
               letterSpacing: '0.08em', color: 'var(--severity-high)',
               marginBottom: '0.6rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.25rem'
             }}>
-              Factores Contribuyentes
+              {t('contributingFactors')}
             </div>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-              {factores.map((f, i) => (
+              {factores.map((f, i) => {
+                const splitFactor = f.split(':');
+                const factorKey = splitFactor[0].trim();
+                const translatedKey = t(`factor_${factorKey}`);
+                const displayText = translatedKey !== `factor_${factorKey}` ? f.replace(factorKey, translatedKey) : f;
+                return (
                 <li key={i} style={{ fontSize: '0.82rem', color: 'var(--text-primary)', display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
                   <span style={{ color: 'var(--accent)', marginTop: 2 }}>›</span>
-                  {f}
+                  {displayText}
                 </li>
-              ))}
+              )})}
             </ul>
           </div>
         )}
@@ -190,27 +197,27 @@ export default function HistorialPage() {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>Historial de <span className="text-gradient">Evaluaciones</span></h1>
-        <p>Registro completo de evaluaciones y seguimiento clínico</p>
+        <h1>{t('viewHistory')}</h1>
+        <p>{t('historySubtitle')}</p>
       </div>
 
       {/* Summary stats */}
       <div className="kpi-grid" style={{ marginBottom: '1.5rem' }}>
         <div className="kpi-card">
           <div className="kpi-value">{stats.total}</div>
-          <div className="kpi-label">Total Evaluaciones</div>
+          <div className="kpi-label">{t('evaluations')}</div>
         </div>
         <div className="kpi-card">
           <div className="kpi-value" style={{ color: 'var(--severity-low)' }}>{stats.leve}</div>
-          <div className="kpi-label">Leve</div>
+          <div className="kpi-label">{t('mild')}</div>
         </div>
         <div className="kpi-card">
           <div className="kpi-value" style={{ color: 'var(--severity-mid)' }}>{stats.moderada}</div>
-          <div className="kpi-label">Moderada</div>
+          <div className="kpi-label">{t('moderate')}</div>
         </div>
         <div className="kpi-card">
           <div className="kpi-value" style={{ color: 'var(--severity-high)' }}>{stats.severa}</div>
-          <div className="kpi-label">Severa</div>
+          <div className="kpi-label">{t('severe')}</div>
         </div>
       </div>
 
@@ -242,7 +249,7 @@ export default function HistorialPage() {
         </div>
 
         <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
-          Mostrando {paginated.length} de {filtered.length} evaluaciones
+          {t('showingEval1')} {paginated.length} {t('showingEval2')} {filtered.length} {t('evaluations')}
         </div>
 
         {loading ? (
@@ -256,12 +263,12 @@ export default function HistorialPage() {
               <table className="table">
                 <thead>
                   <tr>
-                    <th>Fecha</th>
-                    <th>Grupo Edad</th>
-                    <th>Sexo</th>
-                    <th>Severidad</th>
-                    <th>Confianza</th>
-                    <th>Observación</th>
+                    <th>{t('th_date')}</th>
+                    <th>{t('ageGroup')}</th>
+                    <th>{t('sex')}</th>
+                    <th>{t('th_severity')}</th>
+                    <th>{t('th_confidence')}</th>
+                    <th>{t('observation')}</th>
                     <th style={{ width: 32 }}></th>
                   </tr>
                 </thead>
@@ -285,8 +292,8 @@ export default function HistorialPage() {
                             {formatDate(e.created_at)}
                           </td>
                           <td>{datos.grupo_edad || '—'}</td>
-                          <td>{datos.sexo || '—'}</td>
-                          <td><span className={getBadgeClass(e.prediccion)}>{e.prediccion}</span></td>
+                          <td>{datos.sexo ? t(datos.sexo.toLowerCase() === 'femenino' ? 'female' : 'male') : '—'}</td>
+                          <td><span className={getBadgeClass(e.prediccion)}>{e.prediccion === 'Leve' ? t('mild') : e.prediccion === 'Moderada' ? t('moderate') : t('severe')}</span></td>
                           <td>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                               <div className="progress-bar" style={{ width: '60px' }}>
@@ -359,7 +366,7 @@ export default function HistorialPage() {
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div>
-                          <span className={getBadgeClass(e.prediccion)}>{e.prediccion}</span>
+                          <span className={getBadgeClass(e.prediccion)}>{e.prediccion === 'Leve' ? t('mild') : e.prediccion === 'Moderada' ? t('moderate') : t('severe')}</span>
                           <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: 4 }}>
                             {formatDate(e.created_at)}
                           </div>
@@ -382,19 +389,19 @@ export default function HistorialPage() {
                       {/* Siempre visible: resumen básico */}
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginTop: '0.75rem', fontSize: '0.82rem' }}>
                         <div>
-                          <span style={{ color: 'var(--text-muted)', fontSize: '0.68rem', textTransform: 'uppercase' }}>Edad</span>
+                          <span style={{ color: 'var(--text-muted)', fontSize: '0.68rem', textTransform: 'uppercase' }}>{t('ageGroup')}</span>
                           <div style={{ fontWeight: 600 }}>{datos.grupo_edad || '—'}</div>
                         </div>
                         <div>
-                          <span style={{ color: 'var(--text-muted)', fontSize: '0.68rem', textTransform: 'uppercase' }}>Sexo</span>
-                          <div style={{ fontWeight: 600 }}>{datos.sexo || '—'}</div>
+                          <span style={{ color: 'var(--text-muted)', fontSize: '0.68rem', textTransform: 'uppercase' }}>{t('sex')}</span>
+                          <div style={{ fontWeight: 600 }}>{datos.sexo ? t(datos.sexo.toLowerCase() === 'femenino' ? 'female' : 'male') : '—'}</div>
                         </div>
                         <div>
-                          <span style={{ color: 'var(--text-muted)', fontSize: '0.68rem', textTransform: 'uppercase' }}>Área</span>
-                          <div style={{ fontWeight: 600 }}>{datos.area || '—'}</div>
+                          <span style={{ color: 'var(--text-muted)', fontSize: '0.68rem', textTransform: 'uppercase' }}>{t('area')}</span>
+                          <div style={{ fontWeight: 600 }}>{datos.area === 'Urban' ? t('urban') : datos.area === 'Rural' ? t('rural') : datos.area || '—'}</div>
                         </div>
                         <div>
-                          <span style={{ color: 'var(--text-muted)', fontSize: '0.68rem', textTransform: 'uppercase' }}>Días Fiebre</span>
+                          <span style={{ color: 'var(--text-muted)', fontSize: '0.68rem', textTransform: 'uppercase' }}>{t('feverDays')}</span>
                           <div style={{ fontWeight: 600 }}>{datos.tiempo_fiebre != null ? `${datos.tiempo_fiebre}d` : '—'}</div>
                         </div>
                       </div>
@@ -427,8 +434,8 @@ export default function HistorialPage() {
                 <div style={{ marginBottom: '0.75rem', opacity: 0.4 }}>
                   <IconHistory style={{ width: 48, height: 48 }} />
                 </div>
-                <h3>Sin resultados</h3>
-                <p>No se encontraron evaluaciones con los filtros actuales.</p>
+                <h3>{t('noResults')}</h3>
+                <p>{t('noResultsDesc')}</p>
               </div>
             )}
           </>

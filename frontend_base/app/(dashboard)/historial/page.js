@@ -1,5 +1,6 @@
 'use client';
 import { useState, useMemo } from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 
 const allPatients = [
   { id: 'P-0421', name: 'María García López', age: '3 años', ageGroup: '2-5', date: '2026-02-16', severity: 'Leve', confidence: 96, temp: '38.2°C', triage: 'III', diagnosis: 'Rinofaringitis aguda' },
@@ -33,6 +34,7 @@ function getBadgeClass(severity) {
 const ITEMS_PER_PAGE = 8;
 
 export default function HistorialPage() {
+  const { t } = useLanguage();
   const [search, setSearch] = useState('');
   const [filterSeverity, setFilterSeverity] = useState('Todas');
   const [page, setPage] = useState(1);
@@ -58,27 +60,27 @@ export default function HistorialPage() {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>Historial de <span className="text-gradient">Pacientes</span></h1>
-        <p>Registro de evaluaciones de severidad febril realizadas</p>
+        <h1>{t('viewHistory')}</h1>
+        <p>{t('historySubtitle')}</p>
       </div>
 
       {/* Summary stats */}
       <div className="kpi-grid" style={{ marginBottom: '1.5rem' }}>
         <div className="kpi-card">
           <div className="kpi-value">{allPatients.length}</div>
-          <div className="kpi-label">Total Evaluaciones</div>
+          <div className="kpi-label">{t('totalEvaluations')}</div>
         </div>
         <div className="kpi-card">
           <div className="kpi-value" style={{ color: 'var(--severity-low)' }}>{allPatients.filter(p => p.severity === 'Leve').length}</div>
-          <div className="kpi-label">Leve</div>
+          <div className="kpi-label">{t('mild')}</div>
         </div>
         <div className="kpi-card">
           <div className="kpi-value" style={{ color: 'var(--severity-mid)' }}>{allPatients.filter(p => p.severity === 'Moderada').length}</div>
-          <div className="kpi-label">Moderada</div>
+          <div className="kpi-label">{t('moderate')}</div>
         </div>
         <div className="kpi-card">
           <div className="kpi-value" style={{ color: 'var(--severity-high)' }}>{allPatients.filter(p => p.severity === 'Severa').length}</div>
-          <div className="kpi-label">Severa</div>
+          <div className="kpi-label">{t('severe')}</div>
         </div>
       </div>
 
@@ -90,7 +92,7 @@ export default function HistorialPage() {
             <input
               className="input"
               type="text"
-              placeholder="Buscar por nombre, ID o diagnóstico..."
+              placeholder={t('searchPlaceholder')}
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
               style={{ paddingLeft: '2.5rem' }}
@@ -102,16 +104,16 @@ export default function HistorialPage() {
             onChange={(e) => { setFilterSeverity(e.target.value); setPage(1); }}
             style={{ maxWidth: '180px' }}
           >
-            <option>Todas</option>
-            <option>Leve</option>
-            <option>Moderada</option>
-            <option>Severa</option>
+            <option value="Todas">{t('all')}</option>
+            <option value="Leve">{t('mild')}</option>
+            <option value="Moderada">{t('moderate')}</option>
+            <option value="Severa">{t('severe')}</option>
           </select>
         </div>
 
         {/* Results count */}
         <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
-          Mostrando {paginated.length} de {filtered.length} evaluaciones
+          {t('showingEval1')} {paginated.length} {t('showingEval2')} {filtered.length} {t('evaluations')}
         </div>
 
         {/* Table */}
@@ -120,13 +122,13 @@ export default function HistorialPage() {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Paciente</th>
-                <th>Edad</th>
-                <th>Fecha</th>
-                <th>Diagnóstico</th>
-                <th>Triage</th>
-                <th>Severidad</th>
-                <th>Confianza</th>
+                <th>{t('patient')}</th>
+                <th>{t('age')}</th>
+                <th>{t('date')}</th>
+                <th>{t('diagnosis')}</th>
+                <th>{t('triage')}</th>
+                <th>{t('severityField')}</th>
+                <th>{t('confidenceField')}</th>
               </tr>
             </thead>
             <tbody>
@@ -139,11 +141,11 @@ export default function HistorialPage() {
                   >
                     <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{p.id}</td>
                     <td>{p.name}</td>
-                    <td>{p.age}</td>
+                    <td>{parseInt(p.age) + (p.age.includes('años') || p.age.includes('año') ? (parseInt(p.age) === 1 ? (t('language') === 'en' ? ' year' : ' año') : (t('language') === 'en' ? ' years' : ' años')) : (t('language') === 'en' ? ' months' : ' meses'))}</td>
                     <td>{p.date}</td>
                     <td>{p.diagnosis}</td>
                     <td><span className="badge badge-info">{p.triage}</span></td>
-                    <td><span className={getBadgeClass(p.severity)}>{p.severity}</span></td>
+                    <td><span className={getBadgeClass(p.severity)}>{p.severity === 'Leve' ? t('mild') : p.severity === 'Moderada' ? t('moderate') : t('severe')}</span></td>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <div className="progress-bar" style={{ width: '60px' }}>
@@ -160,12 +162,12 @@ export default function HistorialPage() {
                     <tr key={p.id + '-exp'}>
                       <td colSpan={8} style={{ background: 'var(--bg-secondary)', padding: '1rem 1.5rem' }}>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '0.75rem', fontSize: '0.825rem' }}>
-                          <div><span style={{ color: 'var(--text-muted)' }}>Grupo Edad:</span> <strong>{p.ageGroup} años</strong></div>
-                          <div><span style={{ color: 'var(--text-muted)' }}>Temperatura:</span> <strong>{p.temp}</strong></div>
-                          <div><span style={{ color: 'var(--text-muted)' }}>Nivel Triage:</span> <strong>{p.triage}</strong></div>
-                          <div><span style={{ color: 'var(--text-muted)' }}>Diagnóstico:</span> <strong>{p.diagnosis}</strong></div>
-                          <div><span style={{ color: 'var(--text-muted)' }}>Confianza:</span> <strong>{p.confidence}%</strong></div>
-                          <div><span style={{ color: 'var(--text-muted)' }}>Clasificación:</span> <strong style={{ color: p.severity === 'Leve' ? 'var(--severity-low)' : p.severity === 'Moderada' ? 'var(--severity-mid)' : 'var(--severity-high)' }}>{p.severity}</strong></div>
+                          <div><span style={{ color: 'var(--text-muted)' }}>{t('ageGroup')}</span> <strong>{p.ageGroup} {t('language') === 'en' ? 'years' : 'años'}</strong></div>
+                          <div><span style={{ color: 'var(--text-muted)' }}>{t('temperatureLabel')}</span> <strong>{p.temp}</strong></div>
+                          <div><span style={{ color: 'var(--text-muted)' }}>{t('triageLevelLabel')}</span> <strong>{p.triage}</strong></div>
+                          <div><span style={{ color: 'var(--text-muted)' }}>{t('diagnosis')}:</span> <strong>{p.diagnosis}</strong></div>
+                          <div><span style={{ color: 'var(--text-muted)' }}>{t('confidenceField')}:</span> <strong>{p.confidence}%</strong></div>
+                          <div><span style={{ color: 'var(--text-muted)' }}>{t('classification')}</span> <strong style={{ color: p.severity === 'Leve' ? 'var(--severity-low)' : p.severity === 'Moderada' ? 'var(--severity-mid)' : 'var(--severity-high)' }}>{p.severity === 'Leve' ? t('mild') : p.severity === 'Moderada' ? t('moderate') : t('severe')}</strong></div>
                         </div>
                       </td>
                     </tr>
@@ -177,8 +179,8 @@ export default function HistorialPage() {
                   <td colSpan={8}>
                     <div className="empty-state">
                       <div className="icon">🔍</div>
-                      <h3>Sin resultados</h3>
-                      <p>No se encontraron pacientes con los filtros aplicados.</p>
+                      <h3>{t('noResults')}</h3>
+                      <p>{t('noResultsDesc')}</p>
                     </div>
                   </td>
                 </tr>

@@ -2,11 +2,12 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import PatientForm from '../../components/PatientForm';
-import PredictionResult from '../../components/PredictionResult';
 import { predictSeverity, saveEvaluation } from '../../lib/api';
 import { IconCheck } from '../../components/Icons';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function EvaluacionPage() {
+  const { t } = useLanguage();
   const { session, user, supabase } = useAuth();
   const [result, setResult] = useState(null);
   const [patientData, setPatientData] = useState(null);
@@ -57,11 +58,10 @@ export default function EvaluacionPage() {
     <div className="page-container">
       <div className="page-header">
         <h1>
-          Evaluación de <span className="text-gradient">Paciente</span>
+          {t('eval_patientEvaluation')}
         </h1>
         <p>
-          Ingrese los datos clínicos del paciente para obtener una predicción de
-          severidad febril
+          {t('eval_enterClinicalData')}
         </p>
       </div>
 
@@ -102,7 +102,7 @@ export default function EvaluacionPage() {
           }}
         >
           <IconCheck style={{ width: 16, height: 16 }} />
-          Evaluación guardada exitosamente en el historial
+          {t('eval_evaluationSaved')}
         </div>
       )}
     </div>

@@ -2,8 +2,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AuthProvider, useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 function LoginForm() {
+  const { t } = useLanguage();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -44,24 +46,22 @@ function LoginForm() {
       <div className="login-left">
         <div className="login-hero-content">
           <div className="login-hero-icon">🏥</div>
-          <h1>Modelo de Predicción de <span className="text-gradient">Severidad Febril</span> Pediátrica</h1>
+          <h1>{t('loginHeroTitle').replace('Modelo de Predicción de ', '') && t('loginHeroTitle').split(' ').slice(0, 3).join(' ')} <span className="text-gradient">{t('loginHeroTitle').split(' ').slice(3).join(' ')}</span></h1>
           <p>
-            Sistema inteligente basado en Machine Learning para clasificar la severidad
-            de cuadros febriles en pacientes pediátricos, apoyando la toma de decisiones
-            médicas en urgencias.
+            {t('loginHeroDesc')}
           </p>
           <div className="login-hero-stats">
             <div className="login-stat">
               <div className="value">94.3%</div>
-              <div className="label">Accuracy</div>
+              <div className="label">{t('modelAccuracy')}</div>
             </div>
             <div className="login-stat">
               <div className="value">95.5%</div>
-              <div className="label">F1-Macro</div>
+              <div className="label">{t('f1MacroScore')}</div>
             </div>
             <div className="login-stat">
               <div className="value">0</div>
-              <div className="label">Errores Críticos</div>
+              <div className="label">{t('criticalErrors')}</div>
             </div>
           </div>
         </div>
@@ -70,21 +70,21 @@ function LoginForm() {
       {/* Right — Login Form */}
       <div className="login-right">
         <div className="login-card animate-slide">
-          <h2>Iniciar Sesión</h2>
-          <p className="subtitle">Accede al panel de análisis clínico</p>
+          <h2>{t('loginAction')}</h2>
+          <p className="subtitle">{t('loginSubtitle')}</p>
 
           <form className="login-form" onSubmit={handleSubmit}>
             {error && <div className="login-error">{error}</div>}
 
             <div className="input-group">
-              <label htmlFor="username">Usuario</label>
+              <label htmlFor="username">{t('username')}</label>
               <div className="input-icon-wrapper">
                 <span className="input-icon">👤</span>
                 <input
                   id="username"
                   className="input"
                   type="text"
-                  placeholder="Ingrese su usuario"
+                  placeholder={t('enterUsername')}
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   autoComplete="username"
@@ -94,14 +94,14 @@ function LoginForm() {
             </div>
 
             <div className="input-group">
-              <label htmlFor="password">Contraseña</label>
+              <label htmlFor="password">{t('password')}</label>
               <div className="input-icon-wrapper">
                 <span className="input-icon">🔒</span>
                 <input
                   id="password"
                   className="input"
                   type="password"
-                  placeholder="Ingrese su contraseña"
+                  placeholder={t('enterPassword')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   autoComplete="current-password"
@@ -116,13 +116,13 @@ function LoginForm() {
               disabled={isSubmitting}
               style={{ width: '100%', marginTop: '0.5rem' }}
             >
-              {isSubmitting ? 'Verificando...' : 'Ingresar'}
+              {isSubmitting ? t('verifying') : t('loginAction')}
             </button>
           </form>
 
           <div className="login-footer">
-            Universidad del Sinú — Cartagena, Colombia<br />
-            Investigación Clínica · Dra. Fontalvo · 2026
+            {t('unisinuFooter')}<br />
+            {t('researchFooter')}
           </div>
         </div>
       </div>

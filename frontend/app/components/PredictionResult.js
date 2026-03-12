@@ -1,5 +1,5 @@
-'use client';
 import { IconCheck, IconAlertTriangle, IconShield, IconInfo, IconSave } from './Icons';
+import { useLanguage } from '../context/LanguageContext';
 
 const severityConfig = {
     Leve: {
@@ -32,9 +32,19 @@ const barColor = {
 };
 
 export default function PredictionResult({ result, onClose, onSave, isSaving }) {
+    const { t } = useLanguage();
+
     if (!result) return null;
 
     const config = severityConfig[result.prediccion] || severityConfig.Leve;
+
+    // Helper for translating the Spanish prediction values returned directly by the model
+    const translatedPrediction = () => {
+        if (result.prediccion === 'Leve') return t('mild');
+        if (result.prediccion === 'Moderada') return t('moderate');
+        if (result.prediccion === 'Severa') return t('severe');
+        return result.prediccion;
+    };
 
     return (
         <div className="modal-overlay" onClick={onClose} style={{
@@ -86,7 +96,7 @@ export default function PredictionResult({ result, onClose, onSave, isSaving }) 
                         letterSpacing: '-0.02em',
                         lineHeight: 1.1
                     }}>
-                        {result.prediccion}
+                        {translatedPrediction()}
                     </h2>
 
                     <div style={{
@@ -96,7 +106,7 @@ export default function PredictionResult({ result, onClose, onSave, isSaving }) 
                         textTransform: 'uppercase',
                         letterSpacing: '0.05em'
                     }}>
-                        Nivel de Severidad
+                        {t('severityLevel')}
                     </div>
 
                     <div style={{
@@ -112,7 +122,7 @@ export default function PredictionResult({ result, onClose, onSave, isSaving }) 
                         <span style={{ fontSize: '1.5rem', fontWeight: '800', lineHeight: 1, color: 'var(--text-primary)' }}>
                             {result.confianza}
                         </span>
-                        <span style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--text-muted)' }}>% Confianza</span>
+                        <span style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--text-muted)' }}>% {t('confidence')}</span>
                     </div>
                 </div>
 
@@ -123,7 +133,7 @@ export default function PredictionResult({ result, onClose, onSave, isSaving }) 
                             <div className="confidence-item" key={key} style={{ marginBottom: 0 }}>
                                 <div className="confidence-label" style={{ marginBottom: '0.4rem', justifyContent: 'space-between', display: 'flex' }}>
                                     <span style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-secondary)' }}>
-                                        {key.charAt(0).toUpperCase() + key.slice(1)}
+                                        {t(key)}
                                     </span>
                                     <span style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-primary)' }}>
                                         {result.probabilidades[key]}%
@@ -153,10 +163,22 @@ export default function PredictionResult({ result, onClose, onSave, isSaving }) 
                             marginBottom: '1rem',
                             fontWeight: '700'
                         }}>
-                            Factores Contribuyentes
+                            {t('contributingFactors')}
                         </h4>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                            {result.factores.map((f, i) => (
+                            {result.factores.map((f, i) => {
+                                // Extract the start of the factor (before the colon or space) to check if we can translate it
+                                const splitFactor = f.split(':');
+                                const factorKey = splitFactor[0].trim();
+                                const translatedKey = t(`factor_${factorKey}`);
+                                
+                                // If translations exist for this factor key (like factor_Triage)
+                                // then replace it in the string.
+                                const displayText = translatedKey !== `factor_${factorKey}` 
+                                    ? f.replace(factorKey, translatedKey) 
+                                    : f;
+
+                                return (
                                 <div key={i} style={{
                                     display: 'flex',
                                     gap: '0.75rem',
@@ -165,9 +187,10 @@ export default function PredictionResult({ result, onClose, onSave, isSaving }) 
                                     alignItems: 'center'
                                 }}>
                                     <IconInfo style={{ width: 18, height: 18, color: 'var(--accent)', flexShrink: 0 }} />
-                                    <span>{f}</span>
+                                    <span>{displayText}</span>
                                 </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
 
@@ -184,7 +207,7 @@ export default function PredictionResult({ result, onClose, onSave, isSaving }) 
                                 fontSize: '1rem'
                             }}
                         >
-                            Cerrar
+                            {t('close')}
                         </button>
                         {onSave && (
                             <button
@@ -200,7 +223,7 @@ export default function PredictionResult({ result, onClose, onSave, isSaving }) 
                                 }}
                             >
                                 <IconSave style={{ width: 20, height: 20 }} />
-                                {isSaving ? 'Guardando...' : 'Guardar'}
+                                {isSaving ? t('saving') : t('save')}
                             </button>
                         )}
                     </div>

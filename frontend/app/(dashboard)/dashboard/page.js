@@ -8,24 +8,30 @@ import {
   IconShield, IconCheck, IconTrendingUp, IconUser, IconPlus,
   IconAlertTriangle,
 } from '../../components/Icons';
+import { useLanguage } from '../../context/LanguageContext';
 
 /* ── Helpers ── */
-const EDAD_LABELS = {
-  'Menor de 2': '< 2 años',
-  '2-5': '2-5 años',
-  '6-12': '6-12 años',
-  '13-17': '13-17 años',
-};
+const getEdadLabels = (t, lang) => ({
+  'Menor de 2': t('under2Years'),
+  '2-5': `2-5 ${lang === 'en' ? 'years' : 'años'}`,
+  '6-12': `6-12 ${lang === 'en' ? 'years' : 'años'}`,
+  '13-17': `13-17 ${lang === 'en' ? 'years' : 'años'}`,
+});
 
-function SeverityBadge({ prediccion }) {
+function SeverityBadge({ prediccion, t }) {
   const cls = prediccion === 'Leve' ? 'badge badge-low'
     : prediccion === 'Moderada' ? 'badge badge-mid'
       : 'badge badge-high';
-  return <span className={cls}>{prediccion}</span>;
+  
+  const label = prediccion === 'Leve' ? t('mild') 
+    : prediccion === 'Moderada' ? t('moderate') 
+    : prediccion === 'Severa' ? t('severe') : prediccion;
+
+  return <span className={cls}>{label}</span>;
 }
 
 /* ── Donut CSS puro ── */
-function SeverityDonut({ leve, moderada, severa, total }) {
+function SeverityDonut({ leve, moderada, severa, total, t }) {
   if (total === 0) return null;
   const pLeve = (leve / total) * 100;
   const pMod = (moderada / total) * 100;
@@ -41,14 +47,14 @@ function SeverityDonut({ leve, moderada, severa, total }) {
       <div className="dash-donut" style={{ background: gradient }}>
         <div className="dash-donut-center">
           <span className="dash-donut-value">{total}</span>
-          <span className="dash-donut-label">Total</span>
+          <span className="dash-donut-label">{t('total')}</span>
         </div>
       </div>
       <div className="dash-donut-legend">
         {[
-          { label: 'Leve', count: leve, color: 'var(--severity-low)' },
-          { label: 'Moderada', count: moderada, color: 'var(--severity-mid)' },
-          { label: 'Severa', count: severa, color: 'var(--severity-high)' },
+          { label: t('mild'), count: leve, color: 'var(--severity-low)' },
+          { label: t('moderate'), count: moderada, color: 'var(--severity-mid)' },
+          { label: t('severe'), count: severa, color: 'var(--severity-high)' },
         ].map((s) => (
           <div key={s.label} className="dash-legend-row">
             <span className="legend-dot" style={{ background: s.color }} />
@@ -148,6 +154,7 @@ function WeekSparkline({ evaluaciones }) {
 
 /* ═══════════ MAIN COMPONENT ═══════════ */
 export default function DashboardPage() {
+  const { t, language } = useLanguage();
   const { profile, supabase } = useAuth();
   const [stats, setStats] = useState({
     total: 0, leve: 0, moderada: 0, severa: 0, avgConfianza: 0, evaluaciones: [],
@@ -185,12 +192,14 @@ export default function DashboardPage() {
 
   const greeting = () => {
     const h = new Date().getHours();
-    if (h < 12) return 'Buenos días';
-    if (h < 18) return 'Buenas tardes';
-    return 'Buenas noches';
+    if (h < 12) return t('goodMorning');
+    if (h < 18) return t('goodAfternoon');
+    return t('goodEvening');
   };
 
   const severaCritical = stats.severa > 0;
+  
+  const edadLabels = getEdadLabels(t, language);
 
   return (
     <div className="page-container dash-page">
@@ -198,10 +207,10 @@ export default function DashboardPage() {
       <div className="dash-header">
         <div className="dash-header-left">
           <h1 className="dash-title">
-            {greeting()}, <span className="text-gradient">{profile?.nombre || 'Doctor'}</span>
+            {greeting()}, <span className="text-gradient">{profile?.nombre || t('doctor')}</span>
           </h1>
           <p className="dash-subtitle">
-            Panel de control clínico
+            {t('clinicalDashboard')}
             {profile?.especialidad && (
               <span className="dash-subtitle-dim"> · {profile.especialidad}</span>
             )}
@@ -210,10 +219,10 @@ export default function DashboardPage() {
         <div className="dash-header-actions">
           <div className={`dash-status-pill ${apiStatus === null ? '' : apiStatus ? 'online' : 'offline'}`}>
             <span className="dash-status-dot" />
-            <span>{apiStatus === null ? (loading ? '...' : '—') : apiStatus ? 'API Activa' : 'API Inactiva'}</span>
+            <span>{apiStatus === null ? (loading ? '...' : '—') : apiStatus ? t('apiActive') : t('apiInactive')}</span>
           </div>
           <Link href="/evaluacion" className="btn btn-primary">
-            <IconPlus style={{ width: '1em', height: '1em' }} /> Nueva Evaluación
+            <IconPlus style={{ width: '1em', height: '1em' }} /> {t('newEvaluation')}
           </Link>
         </div>
       </div>
@@ -226,7 +235,7 @@ export default function DashboardPage() {
           </div>
           <div className="dash-kpi-body">
             <span className="dash-kpi-value">{loading ? '—' : stats.total}</span>
-            <span className="dash-kpi-label">Evaluaciones</span>
+            <span className="dash-kpi-label">{t('evaluations')}</span>
           </div>
         </div>
         <div className="dash-kpi">
@@ -235,7 +244,7 @@ export default function DashboardPage() {
           </div>
           <div className="dash-kpi-body">
             <span className="dash-kpi-value" style={{ color: 'var(--severity-low)' }}>{loading ? '—' : stats.leve}</span>
-            <span className="dash-kpi-label">Leves</span>
+            <span className="dash-kpi-label">{t('milds')}</span>
           </div>
         </div>
         <div className="dash-kpi">
@@ -244,7 +253,7 @@ export default function DashboardPage() {
           </div>
           <div className="dash-kpi-body">
             <span className="dash-kpi-value" style={{ color: 'var(--severity-mid)' }}>{loading ? '—' : stats.moderada}</span>
-            <span className="dash-kpi-label">Moderados</span>
+            <span className="dash-kpi-label">{t('moderates')}</span>
           </div>
         </div>
         <div className="dash-kpi">
@@ -253,7 +262,7 @@ export default function DashboardPage() {
           </div>
           <div className="dash-kpi-body">
             <span className="dash-kpi-value" style={{ color: 'var(--severity-high)' }}>{loading ? '—' : stats.severa}</span>
-            <span className="dash-kpi-label">Severos</span>
+            <span className="dash-kpi-label">{t('severes')}</span>
           </div>
         </div>
       </div>
@@ -263,10 +272,13 @@ export default function DashboardPage() {
         <div className="dash-alert">
           <IconAlertTriangle style={{ width: 18, height: 18, flexShrink: 0 }} />
           <span>
-            <strong>{stats.severa} caso{stats.severa > 1 ? 's' : ''} severo{stats.severa > 1 ? 's' : ''}</strong> detectado{stats.severa > 1 ? 's' : ''}.
-            Revisar historial para seguimiento.
+            {language === 'en' ? (
+                <><strong>{stats.severa} severe case{stats.severa > 1 ? 's' : ''}</strong> detected. Review history for follow-up.</>
+            ) : (
+                <><strong>{stats.severa} caso{stats.severa > 1 ? 's' : ''} severo{stats.severa > 1 ? 's' : ''}</strong> detectado{stats.severa > 1 ? 's' : ''}. Revisar historial para seguimiento.</>
+            )}
           </span>
-          <Link href="/historial" className="dash-alert-link">Ver historial →</Link>
+          <Link href="/historial" className="dash-alert-link">{t('viewHistory')} →</Link>
         </div>
       )}
 
@@ -274,22 +286,22 @@ export default function DashboardPage() {
       <div className="dash-grid-3">
         <div className="card dash-card-animate">
           <div className="card-header">
-            <h3><IconPerformance style={{ width: '1em', height: '1em', verticalAlign: 'middle', marginRight: 6 }} /> Distribución</h3>
+            <h3><IconPerformance style={{ width: '1em', height: '1em', verticalAlign: 'middle', marginRight: 6 }} /> {t('distribution')}</h3>
           </div>
           {loading ? (
             <div className="dash-skeleton-block" />
           ) : stats.total === 0 ? (
             <div style={{ textAlign: 'center', padding: '1.5rem 0', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-              Sin datos aún
+              {t('noDataYet')}
             </div>
           ) : (
-            <SeverityDonut leve={stats.leve} moderada={stats.moderada} severa={stats.severa} total={stats.total} />
+            <SeverityDonut leve={stats.leve} moderada={stats.moderada} severa={stats.severa} total={stats.total} t={t} />
           )}
         </div>
 
         <div className="card dash-card-animate" style={{ animationDelay: '0.06s' }}>
           <div className="card-header">
-            <h3><IconTrendingUp style={{ width: '1em', height: '1em', verticalAlign: 'middle', marginRight: 6 }} /> Modelo ML</h3>
+            <h3><IconTrendingUp style={{ width: '1em', height: '1em', verticalAlign: 'middle', marginRight: 6 }} /> {t('mlModel')}</h3>
             <span className="dash-version-tag">V3</span>
           </div>
           <div className="dash-model-metrics">
@@ -309,14 +321,14 @@ export default function DashboardPage() {
               <div className="dash-metric-ring" style={{ '--pct': (stats.avgConfianza || 0), '--clr': 'var(--unisinu-gold)' }}>
                 <span>{loading ? '—' : stats.avgConfianza + '%'}</span>
               </div>
-              <span className="dash-metric-label">Conf. Prom.</span>
+              <span className="dash-metric-label">{t('avgConf')}</span>
             </div>
           </div>
         </div>
 
         <div className="card dash-card-animate" style={{ animationDelay: '0.12s' }}>
           <div className="card-header">
-            <h3><IconHistory style={{ width: '1em', height: '1em', verticalAlign: 'middle', marginRight: 6 }} /> Actividad 7 días</h3>
+            <h3><IconHistory style={{ width: '1em', height: '1em', verticalAlign: 'middle', marginRight: 6 }} /> {t('activity7Days')}</h3>
           </div>
           {loading ? (
             <div className="dash-skeleton-block" />
@@ -331,10 +343,10 @@ export default function DashboardPage() {
         <div className="card-header">
           <h3>
             <IconEvaluation style={{ width: '1em', height: '1em', verticalAlign: 'middle', marginRight: 6 }} />
-            Evaluaciones Recientes
+            {t('recentEvaluations')}
           </h3>
           {recent.length > 0 && (
-            <Link href="/historial" className="btn btn-secondary btn-sm">Ver todas →</Link>
+            <Link href="/historial" className="btn btn-secondary btn-sm">{t('viewAll')} →</Link>
           )}
         </div>
 
@@ -347,10 +359,10 @@ export default function DashboardPage() {
             <div className="dash-empty-icon">
               <IconEvaluation style={{ width: 40, height: 40 }} />
             </div>
-            <h3>Sin evaluaciones aún</h3>
-            <p>Realiza tu primera evaluación para ver los resultados aquí</p>
+            <h3>{t('noEvaluationsYet')}</h3>
+            <p>{t('startFirstEvaluation')}</p>
             <Link href="/evaluacion" className="btn btn-primary" style={{ marginTop: '1rem' }}>
-              <IconPlus style={{ width: '1em', height: '1em' }} /> Comenzar
+              <IconPlus style={{ width: '1em', height: '1em' }} /> {t('start')}
             </Link>
           </div>
         ) : (
@@ -360,12 +372,12 @@ export default function DashboardPage() {
               <table className="table dash-table">
                 <thead>
                   <tr>
-                    <th>Fecha</th>
-                    <th>Paciente</th>
-                    <th>Hallazgo Físico</th>
-                    <th>Severidad</th>
-                    <th>Confianza</th>
-                    <th>Factores Clave</th>
+                    <th>{t('th_date')}</th>
+                    <th>{t('th_patient')}</th>
+                    <th>{t('th_findings')}</th>
+                    <th>{t('th_severity')}</th>
+                    <th>{t('th_confidence')}</th>
+                    <th>{t('th_factors')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -391,16 +403,16 @@ export default function DashboardPage() {
                             </div>
                             <div>
                               <span className="dash-patient-age">
-                                {EDAD_LABELS[datos.grupo_edad] || datos.grupo_edad || '—'}
+                                {edadLabels[datos.grupo_edad] || datos.grupo_edad || '—'}
                               </span>
                               <span className="dash-patient-meta">
-                                {datos.sexo || ''}{datos.sexo && datos.area ? ' · ' : ''}{datos.area === 'Urban' ? 'Urbano' : datos.area || ''}
+                                {datos.sexo ? t(datos.sexo.toLowerCase() === 'femenino' ? 'female' : 'male') : ''}{datos.sexo && datos.area ? ' · ' : ''}{datos.area === 'Urban' ? t('urban') : datos.area === 'Rural' ? t('rural') : datos.area || ''}
                               </span>
                             </div>
                           </div>
                         </td>
-                        <td><span className="badge badge-info" style={{ maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block' }}>{datos.hallazgo_examen_fisico || '—'}</span></td>
-                        <td><SeverityBadge prediccion={e.prediccion} /></td>
+                        <td><span className="badge badge-info" style={{ maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block' }}>{datos.hallazgo_examen_fisico !== 'Ninguno' ? t(datos.hallazgo_examen_fisico) || datos.hallazgo_examen_fisico : t('none')}</span></td>
+                        <td><SeverityBadge prediccion={e.prediccion} t={t} /></td>
                         <td>
                           <div className="dash-confidence-cell">
                             <div className="dash-conf-bar">
@@ -442,24 +454,24 @@ export default function DashboardPage() {
                     style={{ borderLeftColor: severityColor, animationDelay: `${idx * 0.05}s` }}
                   >
                     <div className="dash-eval-card-top">
-                      <SeverityBadge prediccion={e.prediccion} />
+                      <SeverityBadge prediccion={e.prediccion} t={t} />
                       <span className="dash-eval-card-date">{formatDate(e.created_at)}</span>
                     </div>
                     <div className="dash-eval-card-grid">
                       <div className="dash-eval-field">
-                        <span className="dash-eval-field-label">Edad</span>
-                        <span className="dash-eval-field-val">{EDAD_LABELS[datos.grupo_edad] || datos.grupo_edad || '—'}</span>
+                        <span className="dash-eval-field-label">{t('ageGroup')}</span>
+                        <span className="dash-eval-field-val">{edadLabels[datos.grupo_edad] || datos.grupo_edad || '—'}</span>
                       </div>
                       <div className="dash-eval-field">
-                        <span className="dash-eval-field-label">Sexo</span>
-                        <span className="dash-eval-field-val">{datos.sexo || '—'}</span>
+                        <span className="dash-eval-field-label">{t('sex')}</span>
+                        <span className="dash-eval-field-val">{datos.sexo ? t(datos.sexo.toLowerCase() === 'femenino' ? 'female' : 'male') : '—'}</span>
                       </div>
                       <div className="dash-eval-field">
-                        <span className="dash-eval-field-label">Hallazgo Físico</span>
-                        <span className="dash-eval-field-val" style={{ fontSize: '0.75rem' }}>{datos.hallazgo_examen_fisico || '—'}</span>
+                        <span className="dash-eval-field-label">{t('th_findings')}</span>
+                        <span className="dash-eval-field-val" style={{ fontSize: '0.75rem' }}>{datos.hallazgo_examen_fisico !== 'Ninguno' ? t(datos.hallazgo_examen_fisico) || datos.hallazgo_examen_fisico : t('none')}</span>
                       </div>
                       <div className="dash-eval-field">
-                        <span className="dash-eval-field-label">Confianza</span>
+                        <span className="dash-eval-field-label">{t('th_confidence')}</span>
                         <span className="dash-eval-field-val" style={{ color: severityColor, fontWeight: 700 }}>{e.confianza}%</span>
                       </div>
                     </div>

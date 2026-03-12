@@ -3,9 +3,11 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Activity, Sparkles, AlertTriangle, CheckCircle2, HelpCircle, X, ChevronRight, Calculator, CheckSquare } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 import styles from './TriageTepModal.module.css'
 
 export default function TriageTepModal({ value, onChange }) {
+  const { t } = useLanguage()
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   // Identify the numeric value from the model's exact strings
@@ -68,12 +70,12 @@ export default function TriageTepModal({ value, onChange }) {
 
   const getTriageLabel = (level) => {
     switch(level) {
-      case 1: return 'N.1 - Emergencia / Reanimación'
-      case 2: return 'N.2 - Emergencia (Riesgo Vital)'
-      case 3: return 'N.3 - Urgencia (Riesgo Potencial)'
-      case 4: return 'N.4 - Urgencia Menor'
-      case 5: return 'N.5 - Sin Urgencia / Estable' 
-      default: return 'Seleccione todas las áreas'
+      case 1: return `N.1 - ${t('level1Triage').split('(')[1].replace(')','')}`
+      case 2: return `N.2 - ${t('level2Triage').split('(')[1].replace(')','')}`
+      case 3: return `N.3 - ${t('triageDesc3').split(' - ')[0]}`
+      case 4: return `N.4 - ${t('level4Triage').split('(')[1].replace(')','')}`
+      case 5: return `N.5 - ${t('level5Triage').split('(')[1].replace(')','')}` 
+      default: return t('selectTriageLevel')
     }
   }
 
@@ -123,8 +125,8 @@ export default function TriageTepModal({ value, onChange }) {
   const polyRespiratorioA = `${A.x},${A.y} ${MAC.x},${MAC.y} ${O.x},${O.y}`
   const polyRespiratorioN = `${MAC.x},${MAC.y} ${C.x},${C.y} ${O.x},${O.y}`
 
-  const polyCirculacionA = `${B.x},${B.y} ${MBC.x},${MBC.y} ${O.x},${O.y}`
-  const polyCirculacionN = `${MBC.x},${MBC.y} ${C.x},${C.y} ${O.x},${O.y}`
+  const polyCirculacionN = `${B.x},${B.y} ${MBC.x},${MBC.y} ${O.x},${O.y}`
+  const polyCirculacionA = `${MBC.x},${MBC.y} ${C.x},${C.y} ${O.x},${O.y}`
 
   const SubSector = ({ 
     points, colorBase, val, variable, 
@@ -215,18 +217,18 @@ export default function TriageTepModal({ value, onChange }) {
             {savedLevelNum ? (
                 <>
                     <CheckSquare style={{width: 20, height: 20, opacity: 0.7}} />
-                    Asignado: Nivel {savedLevelNum} ({value})
+                    {t('assigned')} {t('level')} {savedLevelNum} ({value})
                 </>
             ) : (
                 <>
                     <Calculator style={{width: 20, height: 20}} />
-                    Evaluar Triage Pediátrico
+                    {t('evaluateTriage')}
                 </>
             )}
         </button>
 
         {savedLevelNum > 0 && (
-            <p className={styles.savedHelperText}>Nivel de Triángulo asignado exitosamente.</p>
+            <p className={styles.savedHelperText}>{t('triageAssignedSuccess')}</p>
         )}
       </div>
 
@@ -254,7 +256,7 @@ export default function TriageTepModal({ value, onChange }) {
                   <div className={styles.headerIcon}>
                     <Sparkles style={{width: 16, height: 16}} />
                   </div>
-                  <h2 className={styles.headerTitle}>Triángulo Triage (TEP)</h2>
+                  <h2 className={styles.headerTitle}>{t('triageTitle')}</h2>
                 </div>
                 <div className={styles.headerActions}>
                   <button type="button"
@@ -262,7 +264,7 @@ export default function TriageTepModal({ value, onChange }) {
                     className={styles.btnGuide}
                   >
                     <HelpCircle style={{width: 18, height: 18}} />
-                    <span className={styles.hideOnMobile}>Guía Clínica</span>
+                    <span className={styles.hideOnMobile}>{t('clinicalGuide')}</span>
                   </button>
                   <button type="button"
                     onClick={() => setIsModalOpen(false)}
@@ -280,12 +282,12 @@ export default function TriageTepModal({ value, onChange }) {
                 {/* Panel Izquierdo */}
                 <div className={styles.leftPanel}>
                   <p className={styles.introText}>
-                    Haga clic en el estado <strong>Normal (N)</strong> o <strong>Anormal (A)</strong> para cada una de las 3 áreas de evaluación pediátrica.
+                    {t('triageInstruction')}
                   </p>
 
                   <div className={styles.selectorList}>
                      <div className={`${styles.selectorRow} ${getActiveRowClass('apariencia')}`}>
-                        <span className={styles.selectorLabel}>1. Apariencia General</span>
+                        <span className={styles.selectorLabel}>1. {t('appearance')}</span>
                         <div className={styles.selectorButtons}>
                           <button type="button" onClick={()=>handleSectorClick('apariencia', 'N')} className={`${styles.btnSector} ${getActiveBtnClass('apariencia', 'N')}`}>N</button>
                           <button type="button" onClick={()=>handleSectorClick('apariencia', 'A')} className={`${styles.btnSector} ${getActiveBtnClass('apariencia', 'A')}`}>A</button>
@@ -293,7 +295,7 @@ export default function TriageTepModal({ value, onChange }) {
                      </div>
                      
                      <div className={`${styles.selectorRow} ${getActiveRowClass('respiratorio')}`}>
-                        <span className={styles.selectorLabel}>2. Trabajo Respiratorio</span>
+                        <span className={styles.selectorLabel}>2. {t('breathing')}</span>
                         <div className={styles.selectorButtons}>
                           <button type="button" onClick={()=>handleSectorClick('respiratorio', 'N')} className={`${styles.btnSector} ${getActiveBtnClass('respiratorio', 'N')}`}>N</button>
                           <button type="button" onClick={()=>handleSectorClick('respiratorio', 'A')} className={`${styles.btnSector} ${getActiveBtnClass('respiratorio', 'A')}`}>A</button>
@@ -301,7 +303,7 @@ export default function TriageTepModal({ value, onChange }) {
                      </div>
 
                      <div className={`${styles.selectorRow} ${getActiveRowClass('circulacion')}`}>
-                        <span className={styles.selectorLabel}>3. Circulación Cutánea</span>
+                        <span className={styles.selectorLabel}>3. {t('circulation')}</span>
                         <div className={styles.selectorButtons}>
                           <button type="button" onClick={()=>handleSectorClick('circulacion', 'N')} className={`${styles.btnSector} ${getActiveBtnClass('circulacion', 'N')}`}>N</button>
                           <button type="button" onClick={()=>handleSectorClick('circulacion', 'A')} className={`${styles.btnSector} ${getActiveBtnClass('circulacion', 'A')}`}>A</button>
@@ -319,7 +321,7 @@ export default function TriageTepModal({ value, onChange }) {
                           <div className={`${styles.levelIndicator} ${getTriageColorClass(finalLevel)}`}>
                             <div className={styles.levelLabelMini}>
                               {finalLevel <= 2 ? <AlertTriangle style={{width:16, height:16}} /> : <CheckCircle2 style={{width:16, height:16}} />}
-                              Nivel Final Calculado
+                              {t('calculatedFinalLevel')}
                             </div>
                             <div className={styles.levelTitle}>
                               {getTriageLabel(finalLevel)}
@@ -327,7 +329,7 @@ export default function TriageTepModal({ value, onChange }) {
                           </div>
 
                           <button type="button" onClick={handleSave} className={styles.btnSaveFinish}>
-                            <CheckCircle2 style={{width:20, height:20}} /> Guardar y Regresar
+                            <CheckCircle2 style={{width:20, height:20}} /> {t('saveAndReturn')}
                           </button>
                         </motion.div>
                       ) : (
@@ -335,7 +337,7 @@ export default function TriageTepModal({ value, onChange }) {
                              <div className={styles.emptyIcon}>
                                <CheckCircle2 style={{width:24, height:24}} />
                              </div>
-                             <p className={styles.emptyText}>Complete todo el dibujo para guardar.</p>
+                             <p className={styles.emptyText}>{t('completeDrawingToSave')}</p>
                           </div>
                       )}
                     </AnimatePresence>
@@ -346,17 +348,17 @@ export default function TriageTepModal({ value, onChange }) {
                 <div className={styles.rightPanel}>
                   
                   <div className={styles.triangleWrapper}>
-                    <div className={styles.labelApariencia}>APARIENCIA GENERAL</div>
-                    <div className={styles.labelRespiratorio}>TRABAJO RESPIRATORIO</div>
-                    <div className={styles.labelCirculacion}>CIRCULACIÓN CUTÁNEA</div>
+                    <div className={styles.labelApariencia}>{t('appearance').toUpperCase()}</div>
+                    <div className={styles.labelRespiratorio}>{t('breathing').toUpperCase()}</div>
+                    <div className={styles.labelCirculacion}>{t('circulation').toUpperCase()}</div>
 
                     <svg viewBox="0 0 400 360" className={styles.svgElement}>
                       <SubSector points={polyAparienciaN} colorBase="#82A1D9" val="N" variable="apariencia" activeState={state.apariencia} textPos={{x: 165, y: 110}} />
                       <SubSector points={polyAparienciaA} colorBase="#82A1D9" val="A" variable="apariencia" activeState={state.apariencia} textPos={{x: 115, y: 200}} />
                       <SubSector points={polyRespiratorioA} colorBase="#7BCB8C" val="A" variable="respiratorio" activeState={state.respiratorio} textPos={{x: 235, y: 110}} />
                       <SubSector points={polyRespiratorioN} colorBase="#7BCB8C" val="N" variable="respiratorio" activeState={state.respiratorio} textPos={{x: 285, y: 200}} />
-                      <SubSector points={polyCirculacionA} colorBase="#C56D60" val="A" variable="circulacion" activeState={state.circulacion} textPos={{x: 155, y: 300}} />
-                      <SubSector points={polyCirculacionN} colorBase="#C56D60" val="N" variable="circulacion" activeState={state.circulacion} textPos={{x: 245, y: 300}} />
+                      <SubSector points={polyCirculacionN} colorBase="#C56D60" val="N" variable="circulacion" activeState={state.circulacion} textPos={{x: 155, y: 300}} />
+                      <SubSector points={polyCirculacionA} colorBase="#C56D60" val="A" variable="circulacion" activeState={state.circulacion} textPos={{x: 245, y: 300}} />
                     </svg>
                   </div>
 
@@ -368,20 +370,20 @@ export default function TriageTepModal({ value, onChange }) {
                               {(aCount === 3 || aCount === 2) && (
                                 <div>
                                   <p className={styles.disambigTitle}>
-                                    <Sparkles style={{width:16,height:16,color:'var(--accent)'}} /> Refinar estado grave:
+                                    <Sparkles style={{width:16,height:16,color:'var(--accent)'}} /> {t('refineSevereState')}
                                   </p>
                                   <button type="button" onClick={() => setManualSelection(1)} className={`${styles.btnDisambig} ${finalLevel===1 ? styles.btnDisambigActiveL1 : ''}`}>
                                     <div className={`${styles.radioDot} ${finalLevel===1 ? styles.dotActiveL1 : ''}`} />
                                     <div className={styles.btnDisambigText}>
-                                      <div className={styles.disambigLabel}>Nivel 1 (Reanimación)</div>
-                                      <div className={styles.disambigDesc}>Inestabilidad grave generalizada.</div>
+                                      <div className={styles.disambigLabel}>{t('level1Triage')}</div>
+                                      <div className={styles.disambigDesc}>{t('level1Desc')}</div>
                                     </div>
                                   </button>
                                   <button type="button" onClick={() => setManualSelection(2)} className={`${styles.btnDisambig} ${finalLevel===2 ? styles.btnDisambigActiveL2 : ''}`}>
                                     <div className={`${styles.radioDot} ${finalLevel===2 ? styles.dotActiveL2 : ''}`} />
                                     <div className={styles.btnDisambigText}>
-                                      <div className={styles.disambigLabel}>Nivel 2 (Emergencia)</div>
-                                      <div className={styles.disambigDesc}>Múltiples alertas pero reanimación diferible minutos.</div>
+                                      <div className={styles.disambigLabel}>{t('level2Triage')}</div>
+                                      <div className={styles.disambigDesc}>{t('level2Desc')}</div>
                                     </div>
                                   </button>
                                 </div>
@@ -389,20 +391,20 @@ export default function TriageTepModal({ value, onChange }) {
                               {(aCount === 0) && (
                                 <div>
                                   <p className={styles.disambigTitle}>
-                                    <Sparkles style={{width:16,height:16,color:'var(--accent)'}} /> Clasificar estabilidad:
+                                    <Sparkles style={{width:16,height:16,color:'var(--accent)'}} /> {t('classifyStability')}
                                   </p>
                                   <button type="button" onClick={() => setManualSelection(4)} className={`${styles.btnDisambig} ${finalLevel===4 ? styles.btnDisambigActiveL4 : ''}`}>
                                     <div className={`${styles.radioDot} ${finalLevel===4 ? styles.dotActiveL4 : ''}`} />
                                     <div className={styles.btnDisambigText}>
-                                      <div className={styles.disambigLabel}>Nivel 4 (Urgencia Menor)</div>
-                                      <div className={styles.disambigDesc}>Requiere revisión médica, posible fiebre moderada aislada.</div>
+                                      <div className={styles.disambigLabel}>{t('level4Triage')}</div>
+                                      <div className={styles.disambigDesc}>{t('level4Desc')}</div>
                                     </div>
                                   </button>
                                   <button type="button" onClick={() => setManualSelection(5)} className={`${styles.btnDisambig} ${finalLevel===5 ? styles.btnDisambigActiveL5 : ''}`}>
                                     <div className={`${styles.radioDot} ${finalLevel===5 ? styles.dotActiveL5 : ''}`} />
                                     <div className={styles.btnDisambigText}>
-                                      <div className={styles.disambigLabel}>Nivel 5 (Sin Urgencia)</div>
-                                      <div className={styles.disambigDesc}>Completamente estable asintomático, atención demorable.</div>
+                                      <div className={styles.disambigLabel}>{t('level5Triage')}</div>
+                                      <div className={styles.disambigDesc}>{t('level5Desc')}</div>
                                     </div>
                                   </button>
                                 </div>
@@ -441,7 +443,7 @@ export default function TriageTepModal({ value, onChange }) {
                   <div className={styles.headerIcon} style={{backgroundColor: 'var(--bg-card)', border:'1px solid var(--border)'}}>
                     <HelpCircle style={{width:20, height:20}} />
                   </div>
-                  Evaluación TEP - Clínica
+                  {t('helpTitle')}
                 </h3>
                 <button type="button" onClick={() => setShowHelp(false)} className={styles.btnClose}>
                   <X style={{width:20, height:20}} />
@@ -450,21 +452,21 @@ export default function TriageTepModal({ value, onChange }) {
 
               <div className={styles.helpBody}>
                 <div className={styles.helpBanner}>
-                  El Triángulo de Evaluación Pediátrica (TEP) es una herramienta de apreciación rápida y visual. Cada lado evalúa una dimensión independiente y crítica del estado fisiológico.
+                  {t('helpBanner')}
                 </div>
 
                 <div className={styles.helpSection}>
                   <div className={`${styles.helpSectionBar} ${styles.bgBlue}`}></div>
                   <div>
-                    <h4 className={styles.helpSectionTitle}>1. Apariencia General <span className={styles.textBlue}>(Azul)</span></h4>
-                    <p className={styles.helpSectionDesc}>Refleja la idoneidad de la oxigenación y perfusión cerebral.</p>
+                    <h4 className={styles.helpSectionTitle}>1. {t('appearance')}</h4>
+                    <p className={styles.helpSectionDesc}>{t('helpAparienciaDesc')}</p>
                     <div className={styles.helpWarningBox}>
-                      <strong className={styles.helpWarningTitle}>Marque [Anormal] si presenta:</strong>
+                      <strong className={styles.helpWarningTitle}>{t('markAbnormalIf')}</strong>
                       <ul className={styles.helpWarningList}>
-                        <li>Tono muscular anormal (hipotonía o hipertonía).</li>
-                        <li>Inconsolabilidad (llanto incontrolable y agudo).</li>
-                        <li>Mirada ausente o fija, pérdida de la conexión con el cuidador.</li>
-                        <li>Reactividad mermada ante estímulos ambientales, letargo profundo.</li>
+                        <li>{t('aparienciaItem1')}</li>
+                        <li>{t('aparienciaItem2')}</li>
+                        <li>{t('aparienciaItem3')}</li>
+                        <li>{t('aparienciaItem4')}</li>
                       </ul>
                     </div>
                   </div>
@@ -473,15 +475,15 @@ export default function TriageTepModal({ value, onChange }) {
                 <div className={styles.helpSection}>
                   <div className={`${styles.helpSectionBar} ${styles.bgGreen}`}></div>
                   <div>
-                    <h4 className={styles.helpSectionTitle}>2. Trabajo Respiratorio <span className={styles.textGreen}>(Verde)</span></h4>
-                    <p className={styles.helpSectionDesc}>Establece rápidamente si las vías aéreas están comprometidas o el esfuerzo para oxigenar es alto.</p>
+                    <h4 className={styles.helpSectionTitle}>2. {t('breathing')}</h4>
+                    <p className={styles.helpSectionDesc}>{t('helpRespiratorioDesc')}</p>
                     <div className={styles.helpWarningBox}>
-                      <strong className={styles.helpWarningTitle}>Marque [Anormal] si presenta:</strong>
+                      <strong className={styles.helpWarningTitle}>{t('markAbnormalIf')}</strong>
                       <ul className={styles.helpWarningList}>
-                        <li>Ruidos anormales fonéticos audibles (quejidos, ronquidos, estridor).</li>
-                        <li>Posición anómala compensatoria (trípode, olfateo).</li>
-                        <li>Aleteo nasal, disociación toraco-abdominal.</li>
-                        <li>Tirajes intercostales, subcostales o supraclaviculares visibles.</li>
+                        <li>{t('respItem1')}</li>
+                        <li>{t('respItem2')}</li>
+                        <li>{t('respItem3')}</li>
+                        <li>{t('respItem4')}</li>
                       </ul>
                     </div>
                   </div>
@@ -490,14 +492,14 @@ export default function TriageTepModal({ value, onChange }) {
                 <div className={styles.helpSection}>
                   <div className={`${styles.helpSectionBar} ${styles.bgRed}`}></div>
                   <div>
-                    <h4 className={styles.helpSectionTitle}>3. Circulación Cutánea <span className={styles.textRed}>(Rojo)</span></h4>
-                    <p className={styles.helpSectionDesc}>Identifica clínicamente el gasto cardíaco adecuado mediante el aspecto de la piel.</p>
+                    <h4 className={styles.helpSectionTitle}>3. {t('circulation')}</h4>
+                    <p className={styles.helpSectionDesc}>{t('helpCirculacionDesc')}</p>
                     <div className={styles.helpWarningBox}>
-                      <strong className={styles.helpWarningTitle}>Marque [Anormal] si presenta:</strong>
+                      <strong className={styles.helpWarningTitle}>{t('markAbnormalIf')}</strong>
                       <ul className={styles.helpWarningList}>
-                        <li>Palidez generalizada notoria en mucosas u ojos.</li>
-                        <li>Cianosis (matiz azulado/azulado oscuro) en extremidades o rostro.</li>
-                        <li>Piel moteada o reticular (Cutis marmorata) irremediable.</li>
+                        <li>{t('circItem1')}</li>
+                        <li>{t('circItem2')}</li>
+                        <li>{t('circItem3')}</li>
                       </ul>
                     </div>
                   </div>
@@ -506,7 +508,7 @@ export default function TriageTepModal({ value, onChange }) {
 
               <div className={styles.helpFooter}>
                 <button type="button" onClick={() => setShowHelp(false)} className={styles.btnPrimary} style={{maxWidth:'240px'}}>
-                  Continuar Evaluación <ChevronRight style={{width:20,height:20}} />
+                  {t('continueEval')} <ChevronRight style={{width:20,height:20}} />
                 </button>
               </div>
             </motion.div>

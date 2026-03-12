@@ -3,8 +3,10 @@ import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { getEvaluaciones } from '../../lib/api';
 import { IconPerformance, IconActivity, IconCheck, IconShield, IconTrendingUp, IconInfo } from '../../components/Icons';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function RendimientoPage() {
+  const { t } = useLanguage();
   const { supabase } = useAuth();
   const [evaluaciones, setEvaluaciones] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -55,9 +57,9 @@ export default function RendimientoPage() {
     <div className="page-container">
       <div className="page-header">
         <h1>
-          Validación <span className="text-gradient">Clínica</span>
+          {t('clinicalValidation')}
         </h1>
-        <p>Distribución de evaluaciones y confiabilidad del modelo</p>
+        <p>{t('clinicalValidationDesc')}</p>
       </div>
 
       {/* Key Metrics */}
@@ -67,28 +69,28 @@ export default function RendimientoPage() {
             <IconPerformance />
           </div>
           <div className="kpi-value">74.6%</div>
-          <div className="kpi-label">Accuracy (CV) V3</div>
+          <div className="kpi-label">{t('accuracyCV')} V3</div>
         </div>
         <div className="kpi-card">
           <div className="kpi-icon" style={{ background: 'rgba(99,102,241,0.12)', color: '#818CF8' }}>
             <IconTrendingUp />
           </div>
           <div className="kpi-value">{stats.avgConfianza}%</div>
-          <div className="kpi-label">Confianza Promedio</div>
+          <div className="kpi-label">{t('avgConfidence')}</div>
         </div>
         <div className="kpi-card">
           <div className="kpi-icon" style={{ background: 'var(--severity-low-bg)', color: 'var(--severity-low)' }}>
             <IconCheck />
           </div>
           <div className="kpi-value" style={{ color: 'var(--severity-low)' }}>0</div>
-          <div className="kpi-label">Errores Críticos</div>
+          <div className="kpi-label">{t('criticalErrors')}</div>
         </div>
         <div className="kpi-card">
           <div className="kpi-icon" style={{ background: 'var(--severity-high-bg)', color: 'var(--severity-high)' }}>
             <IconShield />
           </div>
           <div className="kpi-value">{stats.total}</div>
-          <div className="kpi-label">Casos Evaluados</div>
+          <div className="kpi-label">{t('evaluatedCases')}</div>
         </div>
       </div>
 
@@ -97,11 +99,11 @@ export default function RendimientoPage() {
         {/* Donut chart: severity distribution */}
         <div className="card">
           <div className="card-header">
-            <h3>Distribución por Severidad</h3>
+            <h3>{t('severityDistribution')}</h3>
           </div>
           {stats.total === 0 ? (
             <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-              Sin evaluaciones para mostrar
+              {t('noEvaluationsToDisplay')}
             </div>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -117,21 +119,21 @@ export default function RendimientoPage() {
               >
                 <div className="donut-center">
                   <span className="value">{stats.total}</span>
-                  <span className="label">Total</span>
+                  <span className="label">{t('total')}</span>
                 </div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <div className="legend-item">
                   <span className="legend-dot" style={{ background: 'var(--severity-low)' }} />
-                  Leve — {stats.leve} ({pctLeve}%)
+                  {t('mild')} — {stats.leve} ({pctLeve}%)
                 </div>
                 <div className="legend-item">
                   <span className="legend-dot" style={{ background: 'var(--severity-mid)' }} />
-                  Moderada — {stats.moderada} ({pctModerada}%)
+                  {t('moderate')} — {stats.moderada} ({pctModerada}%)
                 </div>
                 <div className="legend-item">
                   <span className="legend-dot" style={{ background: 'var(--severity-high)' }} />
-                  Severa — {stats.severa} ({pctSevera}%)
+                  {t('severe')} — {stats.severa} ({pctSevera}%)
                 </div>
               </div>
             </div>
@@ -141,18 +143,18 @@ export default function RendimientoPage() {
         {/* Confidence distribution */}
         <div className="card">
           <div className="card-header">
-            <h3>Nivel de Confianza</h3>
+            <h3>{t('confidenceLevel')}</h3>
           </div>
           {stats.total === 0 ? (
             <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-              Sin datos
+              {t('noDataYet')}
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {/* High confidence */}
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.35rem' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>Alta confianza (≥80%)</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{t('highConfidence')}</span>
                   <span style={{ fontWeight: 600, color: 'var(--severity-low)' }}>{stats.highConf}</span>
                 </div>
                 <div className="progress-bar">
@@ -162,7 +164,7 @@ export default function RendimientoPage() {
               {/* Medium confidence */}
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.35rem' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>Media confianza (50-79%)</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{t('mediumConfidence')}</span>
                   <span style={{ fontWeight: 600, color: 'var(--severity-mid)' }}>{stats.medConf}</span>
                 </div>
                 <div className="progress-bar">
@@ -172,7 +174,7 @@ export default function RendimientoPage() {
               {/* Low confidence */}
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.35rem' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>Baja confianza (&lt;50%)</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{t('lowConfidence')}</span>
                   <span style={{ fontWeight: 600, color: 'var(--severity-high)' }}>{stats.lowConf}</span>
                 </div>
                 <div className="progress-bar">
@@ -188,10 +190,7 @@ export default function RendimientoPage() {
       <div className="card" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.7, display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
         <IconInfo style={{ width: 18, height: 18, flexShrink: 0, marginTop: 2 }} />
         <div>
-          <strong>Nota:</strong> Este modelo es una herramienta de apoyo a la decisión clínica y no
-          reemplaza el criterio médico. La confianza promedio refleja qué tan seguro está el modelo en
-          sus predicciones sobre las evaluaciones realizadas. 0 errores críticos significa que ningún
-          caso severo fue clasificado como leve en la validación.
+          <strong>{t('note')}:</strong> {t('noteDesc')}
         </div>
       </div>
     </div>

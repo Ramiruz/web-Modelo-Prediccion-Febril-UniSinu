@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { IconUsers, IconClipboard, IconHeart, IconFlask, IconLoader, IconActivity } from './Icons';
 import TriageTepModal from './TriageTepModal';
+import { useLanguage } from '../context/LanguageContext';
 
 /**
  * Opciones de dropdowns — mapeo exacto a las categorías del modelo V3.
@@ -87,6 +88,7 @@ const INITIAL_DATA = {
 };
 
 export default function PatientForm({ onSubmit, isLoading }) {
+    const { t } = useLanguage();
     const [formData, setFormData] = useState(INITIAL_DATA);
 
     const handleChange = (e) => {
@@ -130,39 +132,37 @@ export default function PatientForm({ onSubmit, isLoading }) {
             {/* Datos Demográficos */}
             <div className="form-section">
                 <div className="form-section-title">
-                    <IconUsers style={{ width: 18, height: 18 }} /> Datos Demográficos
+                    <IconUsers style={{ width: 18, height: 18 }} /> {t('demographics')}
                 </div>
                 <div className="form-grid">
                     <div className="input-group">
-                        <label>Grupo de Edad</label>
+                        <label>{t('ageGroup')}</label>
                         <select className="select" name="grupo_edad" value={formData.grupo_edad} onChange={handleChange}>
-                            {OPTIONS.grupo_edad.map((o) => (
-                                <option key={o.value} value={o.value}>{o.label}</option>
-                            ))}
+                            <option value="Menor de 2">{t('under2Years')}</option>
+                            <option value="2-5">2 - 5 {t('language') === 'en' ? 'years' : 'años'}</option>
+                            <option value="6-12">6 - 12 {t('language') === 'en' ? 'years' : 'años'}</option>
+                            <option value="13-17">13 - 17 {t('language') === 'en' ? 'years' : 'años'}</option>
                         </select>
                     </div>
                     <div className="input-group">
-                        <label>Sexo</label>
+                        <label>{t('sex')}</label>
                         <select className="select" name="sexo" value={formData.sexo} onChange={handleChange}>
-                            {OPTIONS.sexo.map((o) => (
-                                <option key={o.value} value={o.value}>{o.label}</option>
-                            ))}
+                            <option value="Femenino">{t('female')}</option>
+                            <option value="Masculino">{t('male')}</option>
                         </select>
                     </div>
                     <div className="input-group">
-                        <label>Área</label>
+                        <label>{t('area')}</label>
                         <select className="select" name="area" value={formData.area} onChange={handleChange}>
-                            {OPTIONS.area.map((o) => (
-                                <option key={o.value} value={o.value}>{o.label}</option>
-                            ))}
+                            <option value="Urban">{t('urban')}</option>
+                            <option value="Rural">{t('rural')}</option>
                         </select>
                     </div>
                     <div className="input-group">
-                        <label>Vacunación</label>
+                        <label>{t('vaccination')}</label>
                         <select className="select" name="vacunacion" value={formData.vacunacion} onChange={handleChange}>
-                            {OPTIONS.vacunacion.map((o) => (
-                                <option key={o.value} value={o.value}>{o.label}</option>
-                            ))}
+                            <option value="Completo">{t('complete')}</option>
+                            <option value="Incompleto">{t('incomplete')}</option>
                         </select>
                     </div>
                 </div>
@@ -171,39 +171,46 @@ export default function PatientForm({ onSubmit, isLoading }) {
             {/* Antecedentes y Exposición */}
             <div className="form-section">
                 <div className="form-section-title">
-                    <IconClipboard style={{ width: 18, height: 18 }} /> Antecedentes y Exposición
+                    <IconClipboard style={{ width: 18, height: 18 }} /> {t('historyAndExposure')}
                 </div>
                 <div className="form-grid">
                     <div className="input-group">
-                        <label>Antecedentes Personales</label>
+                        <label>{t('personalHistory')}</label>
                         <select className="select" name="antecedentes" value={formData.antecedentes} onChange={handleChange}>
-                            {OPTIONS.antecedentes.map((o) => (
-                                <option key={o.value} value={o.value}>{o.label}</option>
-                            ))}
+                            <option value="Ninguno">{t('none')}</option>
+                            <option value="Asma">{t('asthma')}</option>
+                            <option value="Bronquiolitis">{t('bronchiolitis')}</option>
+                            <option value="Neumonía adquirida en la comunidad">{t('pneumonia')}</option>
+                            <option value="Otitis media aguda">{t('otitisMedia')}</option>
+                            <option value="Pretérmino">{t('preterm')}</option>
+                            <option value="Otro">{t('other')}</option>
                         </select>
                     </div>
                     <div className="input-group">
-                        <label>Contacto Epidemiológico</label>
+                        <label>{t('epiContact')}</label>
                         <select className="select" name="contacto_epidemiologico" value={formData.contacto_epidemiologico} onChange={handleChange}>
-                            {OPTIONS.contacto_epidemiologico.map((o) => (
-                                <option key={o.value} value={o.value}>{o.label}</option>
-                            ))}
+                            <option value="Ninguno">{t('none')}</option>
+                            <option value="Rinofaringitis">{t('rhinopharyngitis')}</option>
+                            <option value="Sinusitis">{t('sinusitis')}</option>
+                            <option value="Otro">{t('other')}</option>
                         </select>
                     </div>
                     <div className="input-group">
-                        <label>Exposición Ambiental</label>
+                        <label>{t('envExposure')}</label>
                         <select className="select" name="exposicion_ambiental" value={formData.exposicion_ambiental} onChange={handleChange}>
-                            {OPTIONS.exposicion_ambiental.map((o) => (
-                                <option key={o.value} value={o.value}>{o.label}</option>
-                            ))}
+                            <option value="Ninguno">{t('none')}</option>
+                            <option value="Polución ambiental">{t('envPollution')}</option>
+                            <option value="Polvo casero">{t('houseDust')}</option>
+                            <option value="Preservativos químicos">{t('chemicalPreservatives')}</option>
+                            <option value="Tabaquismo">{t('smoking')}</option>
                         </select>
                     </div>
                     <div className="input-group">
-                        <label>Estado Nutricional</label>
+                        <label>{t('nutritionalStatus')}</label>
                         <select className="select" name="estado_nutricional" value={formData.estado_nutricional} onChange={handleChange}>
-                            {OPTIONS.estado_nutricional.map((o) => (
-                                <option key={o.value} value={o.value}>{o.label}</option>
-                            ))}
+                            <option value="Normal">{t('normal')}</option>
+                            <option value="Riesgo de desnutrición">{t('malnutritionRisk')}</option>
+                            <option value="Otro">{t('otherObesity')}</option>
                         </select>
                     </div>
                 </div>
@@ -212,11 +219,11 @@ export default function PatientForm({ onSubmit, isLoading }) {
             {/* Evaluación Clínica */}
             <div className="form-section">
                 <div className="form-section-title">
-                    <IconHeart style={{ width: 18, height: 18 }} /> Evaluación Clínica
+                    <IconHeart style={{ width: 18, height: 18 }} /> {t('clinicalEvaluation')}
                 </div>
                 <div className="form-grid">
                     <div className="input-group">
-                        <label>Días de Fiebre</label>
+                        <label>{t('daysOfFever')}</label>
                         <input
                             className="input"
                             type="number"
@@ -230,7 +237,7 @@ export default function PatientForm({ onSubmit, isLoading }) {
                         />
                     </div>
                     <div className="input-group">
-                        <label>Glasgow (3-15)</label>
+                        <label>{t('glasgowDesc')}</label>
                         <select className="select" name="glasgow" value={formData.glasgow} onChange={handleChange}>
                             {Array.from({ length: 13 }, (_, i) => 15 - i).map((v) => (
                                 <option key={v} value={v}>{v}</option>
@@ -238,11 +245,16 @@ export default function PatientForm({ onSubmit, isLoading }) {
                         </select>
                     </div>
                     <div className="input-group">
-                        <label>Hallazgo al Examen Físico</label>
+                        <label>{t('physicalExamFindings')}</label>
                         <select className="select" name="hallazgo_examen_fisico" value={formData.hallazgo_examen_fisico} onChange={handleChange}>
-                            {OPTIONS.hallazgo_examen_fisico.map((o) => (
-                                <option key={o.value} value={o.value}>{o.label}</option>
-                            ))}
+                            <option value="Ninguno">{t('none')}</option>
+                            <option value="Eritema orofaríngeo">{t('oropharyngealErythema')}</option>
+                            <option value="Exudado purulento retrofaríngeo">{t('retropharyngealExudate')}</option>
+                            <option value="Hipertrofia de amigdalas con placas purulentas">{t('tonsillarHypertrophy')}</option>
+                            <option value="Signos inflamatorios membrana timpánica">{t('tympanicInflammation')}</option>
+                            <option value="Taquipnea">{t('tachypnea')}</option>
+                            <option value="Tirajes subcostales">{t('subcostalRetractions')}</option>
+                            <option value="Otro">{t('other')}</option>
                         </select>
                     </div>
                 </div>
@@ -251,11 +263,11 @@ export default function PatientForm({ onSubmit, isLoading }) {
             {/* Laboratorios */}
             <div className="form-section">
                 <div className="form-section-title">
-                    <IconFlask style={{ width: 18, height: 18 }} /> Laboratorios
+                    <IconFlask style={{ width: 18, height: 18 }} /> {t('laboratories')}
                 </div>
                 <div className="form-grid">
                     <div className="input-group">
-                        <label>Cayados Absolutos (cel/mm³)</label>
+                        <label>{t('absoluteBands')}</label>
                         <input
                             className="input"
                             type="number"
@@ -268,7 +280,7 @@ export default function PatientForm({ onSubmit, isLoading }) {
                         />
                     </div>
                     <div className="input-group">
-                        <label>Plaquetas (cel/mm³)</label>
+                        <label>{t('platelets2')}</label>
                         <input
                             className="input"
                             type="number"
@@ -280,7 +292,7 @@ export default function PatientForm({ onSubmit, isLoading }) {
                         />
                     </div>
                     <div className="input-group">
-                        <label>Albúmina Sérica (g/dl)</label>
+                        <label>{t('serumAlbumin')}</label>
                         <input
                             className="input"
                             type="number"
@@ -293,7 +305,7 @@ export default function PatientForm({ onSubmit, isLoading }) {
                         />
                     </div>
                     <div className="input-group">
-                        <label>Globulina Sérica (g/dl)</label>
+                        <label>{t('serumGlobulin')}</label>
                         <input
                             className="input"
                             type="number"
@@ -306,7 +318,7 @@ export default function PatientForm({ onSubmit, isLoading }) {
                         />
                     </div>
                     <div className="input-group">
-                        <label>Procalcitonina (ng/mL)</label>
+                        <label>{t('procalcitonin2')}</label>
                         <input
                             className="input"
                             type="number"
@@ -319,7 +331,7 @@ export default function PatientForm({ onSubmit, isLoading }) {
                         />
                     </div>
                     <div className="input-group">
-                        <label>Leucocitos (cel/mm³)</label>
+                        <label>{t('leukocytes2')}</label>
                         <input
                             className="input"
                             type="number"
@@ -331,7 +343,7 @@ export default function PatientForm({ onSubmit, isLoading }) {
                         />
                     </div>
                     <div className="input-group">
-                        <label>Proteína C Reactiva (mg/dL)</label>
+                        <label>{t('crp2')}</label>
                         <input
                             className="input"
                             type="number"
@@ -349,7 +361,7 @@ export default function PatientForm({ onSubmit, isLoading }) {
             {/* Triage */}
             <div className="form-section">
                 <div className="form-section-title">
-                    🏷️ Clasificación de Triage (TEP)
+                    🏷️ {t('triageClassification')}
                 </div>
                 <div className="form-grid">
                     <div className="input-group" style={{ gridColumn: '1 / -1' }}>
@@ -365,13 +377,13 @@ export default function PatientForm({ onSubmit, isLoading }) {
             <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
                 <button type="submit" className="btn btn-primary btn-lg" disabled={isLoading}>
                     {isLoading ? (
-                        <><IconLoader style={{ width: '1em', height: '1em' }} /> Analizando...</>
+                        <><IconLoader style={{ width: '1em', height: '1em' }} /> {t('analyzing')}</>
                     ) : (
-                        <><IconActivity style={{ width: '1em', height: '1em' }} /> Obtener Predicción</>
+                        <><IconActivity style={{ width: '1em', height: '1em' }} /> {t('getPrediction')}</>
                     )}
                 </button>
                 <button type="button" className="btn btn-secondary btn-lg" onClick={handleReset}>
-                    Limpiar Formulario
+                    {t('clearForm')}
                 </button>
             </div>
         </form>
